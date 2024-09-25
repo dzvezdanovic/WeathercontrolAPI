@@ -25,7 +25,7 @@ namespace WeatherApplicationTests.Unit
         }
 
         [Fact]
-        public async Task GetWeather_Returns200_WhenCityAndDateAreValid()
+        public async Task GetWeather_Returns200_WhenCityAreValid()
         {
             // Arrange
             var city = "Belgrade";
@@ -50,6 +50,37 @@ namespace WeatherApplicationTests.Unit
             // Optionally check the returned value
             var weatherData = Assert.IsType<WeatherResponse>(okResult.Value);
             Assert.Equal("Belgrade", weatherData.City);
+        }
+
+        [Fact]
+        public async Task GetWeather_Returns200_WhenCityAndDateAreValid()
+        {
+            // Arrange
+            var city = "Belgrade";
+            var expectedDate = new DateTime(2024, 09, 26);
+            var mockWeatherData = new WeatherResponse
+            {
+                City = city,
+                Temperature = 22.3,
+                Description = "Clear sky",
+                Date = new DateTime(2024, 09, 26)
+            };
+
+            // Mock the weather service to return the desired result
+            _weatherServiceMock.Setup(service => service.GetWeatherForCityAsync(city))
+                .ReturnsAsync(mockWeatherData);
+
+            // Act
+            var result = await _weatherController.GetWeather(city);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(200, okResult.StatusCode);
+
+            // Optionally check the returned value
+            var weatherData = Assert.IsType<WeatherResponse>(okResult.Value);
+            Assert.Equal("Belgrade", weatherData.City);
+            Assert.Equal(expectedDate, weatherData.Date);
         }
     }
 }
