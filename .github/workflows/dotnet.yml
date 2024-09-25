@@ -27,4 +27,4 @@ jobs:
         run: dotnet build WeatherApplication --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test WeatherApplicationTest --configuration Release --no-build
+        run: dotnet test WeatherApplication\WeatherApplicationTest --configuration Release --no-build
