@@ -13,18 +13,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
       - name: Install dependencies
-        run: dotnet restore DiffService
+        run: dotnet restore WeatherApplication
 
       - name: Build
-        run: dotnet build DiffService --configuration Release --no-restore
+        run: dotnet build WeatherApplication --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test DiffService --configuration Release --no-build
+        run: dotnet test WeatherApplication --configuration Release --no-build
