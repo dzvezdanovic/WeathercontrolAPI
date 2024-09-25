@@ -21,10 +21,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Install dependencies
-        run: dotnet restore DiffService
+        run: dotnet restore weathercontrolAPI
 
       - name: Build
-        run: dotnet build DiffService --configuration Release --no-restore
+        run: dotnet build weathercontrolAPI --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test DiffService --configuration Release --no-build
+        run: dotnet test weathercontrolAPI --configuration Release --no-build
