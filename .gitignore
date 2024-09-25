@@ -148,3 +148,4 @@ WeatherApplication/WeatherAppTests/obj/Debug/net8.0/WeatherAppTests.GlobalUsings
 WeatherApplication/.vs/WeatherApplication/FileContentIndex/5d74cbc8-ff11-431f-b2f8-b19abcd37ad0.vsidx
 WeatherApplication/.vs/WeatherApplication/v17/.suo
 WeatherApplication/.vs/WeatherApplication/v17/DocumentLayout.json
+*.vsidx

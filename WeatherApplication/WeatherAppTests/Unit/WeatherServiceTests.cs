@@ -1,28 +1,22 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using WeatherApplication.Services.Implementation;
+using WeatherApplication.Services.Interfaces;
 
 namespace WeatherAppTests.Unit
 {
     public class WeatherServiceTests
     {
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
-        private readonly WeatherService _weatherService;
+        private readonly IWeatherService _weatherService;
         private readonly HttpClient _httpClient;
-        private readonly ILogger<WeatherService> _logger;
+        private readonly ILogger<IWeatherService> _logger;
 
-        public WeatherServiceTests()
+        public WeatherServiceTests(IWeatherService weatherService)
         {
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
-            _logger = Mock.Of<ILogger<WeatherService>>();
-            _weatherService = new WeatherService(_httpClient, _logger);
+            _logger = Mock.Of<ILogger<IWeatherService>>();
+            _weatherService = weatherService;
         }
     }
 }
