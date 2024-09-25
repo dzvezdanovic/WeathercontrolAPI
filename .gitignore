@@ -149,3 +149,5 @@ WeatherApplication/.vs/WeatherApplication/FileContentIndex/5d74cbc8-ff11-431f-b2
 WeatherApplication/.vs/WeatherApplication/v17/.suo
 WeatherApplication/.vs/WeatherApplication/v17/DocumentLayout.json
 *.vsidx
+*.v2
+*.json

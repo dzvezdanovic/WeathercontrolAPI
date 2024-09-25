@@ -22,6 +22,11 @@ namespace WeatherApplication.Controllers
         {
             _logger.LogInformation($"Received request for weather data in {city}");
 
+            if (string.IsNullOrWhiteSpace(city))
+            {
+                return BadRequest("City name cannot be empty.");
+            }
+
             try
             {
                 var weatherData = await _weatherService.GetWeatherForCityAsync(city);
@@ -38,6 +43,11 @@ namespace WeatherApplication.Controllers
         public async Task<IActionResult> GetWeather(string city, DateTime date)
         {
             _logger.LogInformation($"Received request for weather data in {city}");
+
+            if (string.IsNullOrWhiteSpace(city))
+            {
+                return BadRequest("City name cannot be empty.");
+            }
 
             try
             {

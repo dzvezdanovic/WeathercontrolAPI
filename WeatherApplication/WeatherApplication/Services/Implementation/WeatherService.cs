@@ -74,17 +74,25 @@ namespace WeatherApplication.Services.Implementation
             }
 
             var data = await response.Content.ReadAsStringAsync();
-            var weatherData = JsonConvert.DeserializeObject<dynamic>(data);
 
-            _logger.LogInformation($"Successfully fetched weather data for {city}");
-
-            return new WeatherResponse
+            if (!string.IsNullOrWhiteSpace(data))
             {
-                City = city,
-                Description = weatherData.weather[0].description,
-                Temperature = weatherData.main.temp,
-                Date = DateTime.UtcNow
-            };
+                var weatherData = JsonConvert.DeserializeObject<dynamic>(data);
+
+                _logger.LogInformation($"Successfully fetched weather data for {city}");
+
+                return new WeatherResponse
+                {
+                    City = city,
+                    Description = weatherData.weather[0].description,
+                    Temperature = weatherData.main.temp,
+                    Date = DateTime.UtcNow
+                };
+            }
+            else
+            {
+                return new WeatherResponse { City = "Unknown" };
+            }
         }
     }
 }
