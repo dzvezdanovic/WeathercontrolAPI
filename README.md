@@ -2,10 +2,13 @@ WeathercontrolAPI - README
 
 This is a RESTful web service built using ASP.NET Core 8.0 MVC that fetches weather data from a public API and provides responses to clients based on specific cities and dates. The service allows clients to request weather data from external sources such as OpenWeatherMap and delivers it in a user-friendly format.
 
+Because of my free APIKey this app can't track history data from OpenWeatherMap history api. I tried to integrate that too in code, but after reading documentation i got a clue that simply can't work.
+
 Features
 Fetch Current Weather: Retrieves current weather data from public weather APIs like OpenWeatherMap.
 Request Weather by City and Date: Clients can query weather data for a specific city on a specific date.
 Flexible API: Designed to be extensible for additional data sources or endpoints.
+Test Coverage: Unit tests are implemented to ensure core functionality is validated.
 Error Handling: Provides meaningful error messages for invalid inputs or unavailable data.
 Requirements
 To run this project, ensure you have the following:
@@ -35,20 +38,29 @@ Responses:
 The project integrates Swagger for API documentation and testing. You can test endpoints directly via the Swagger UI.
 
 Access Swagger UI:
-
 https://localhost:port/swagger/index.html
+
 Allows users to interact with the API in a browser-friendly interface.
 Displays all available endpoints, methods, and expected request/response formats.
 4. Logging with Serilog
 The service uses Serilog for structured logging to track API calls and handle error logging efficiently. Logs can be viewed in the console or saved to a file based on configuration.
 
+Test Coverage
+The project includes unit tests to verify key functionalities of the weather service. The tests are written using the xUnit framework, which ensures the correctness of the weather-fetching logic, error handling, and API responses.
+
+1. Unit Tests
+WeatherService Tests: Ensure the proper retrieval and transformation of data from external APIs.
+Controller Tests: Validate that the endpoints return the correct HTTP status codes and responses for different input scenarios (e.g., valid city/date, invalid city, missing data).
+2. Test Framework
+The project uses the xUnit testing framework to implement and run the unit tests.
+
+
 Setup Instructions
 Clone the repository:
-
 git clone https://github.com/dzvezdanovic/weathercontrolAPI.git
 
-Set up your API Key:
 
+Set up your API Key:
 Obtain an API key from OpenWeatherMap or any other weather provider.
 Store the API key in appsettings.json or as an environment variable.
 
@@ -78,14 +90,15 @@ ASP.NET Core 8.0 MVC: For building the REST service.
 Serilog: For logging.
 Swagger: For API documentation and testing.
 OpenWeatherMap API: As the external weather data provider.
+
 Future Improvements
 Historical Data: Add support for querying historical weather data.
 Additional API Integrations: Support other weather data providers like Weatherstack.
 Caching: Implement caching for frequent requests to improve performance.
 Authentication: Add API key-based authentication to control access.
+
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-Contributions
 Contributions, issues, and feature requests are welcome!
 
