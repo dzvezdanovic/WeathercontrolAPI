@@ -57,24 +57,24 @@ namespace WeatherApplication.Controllers
         /// <param name="city"></param>
         /// <returns></returns>
 
-        [HttpGet]
-        public async Task<IActionResult> Index(string city)
-        {
-            if (string.IsNullOrEmpty(city))
-            {
-                return View(new WeatherViewModel());
-            }
+        //[HttpGet]
+        //public async Task<IActionResult> Index(string city)
+        //{
+        //    if (string.IsNullOrEmpty(city))
+        //    {
+        //        return View(new WeatherViewModel());
+        //    }
 
-            var weatherData = await _weatherService.GetWeatherForCityAsync(city);
-            var viewModel = new WeatherViewModel
-            {
-                City = city,
-                Description = weatherData.Description,
-                Temperature = weatherData.Temperature,
-                Date = DateTime.Now
-            };
+        //    var weatherData = await _weatherService.GetWeatherForCityAsync(city);
+        //    var viewModel = new WeatherViewModel
+        //    {
+        //        City = city,
+        //        Description = weatherData.Description,
+        //        Temperature = weatherData.Temperature,
+        //        Date = DateTime.Now
+        //    };
 
-            return View(viewModel);
-        }
+        //    return View(viewModel);
+        //}
     }
 }
