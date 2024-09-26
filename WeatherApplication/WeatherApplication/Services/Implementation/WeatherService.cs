@@ -10,12 +10,13 @@ namespace WeatherApplication.Services.Implementation
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<WeatherService> _logger;
-        private readonly string _apiKey = "3e308bafc147f49c52b7bfee1c1c0e97";
+        private readonly string _apiKey;
 
-        public WeatherService(HttpClient httpClient, ILogger<WeatherService> logger)
+        public WeatherService(HttpClient httpClient, ILogger<WeatherService> logger, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _logger = logger;
+            _apiKey = configuration["WeatherAPI:ApiKey"];
         }
 
         public async Task<List<WeatherResponse>> GetWeatherForCityAndTimeAsync(string city, DateTime time)

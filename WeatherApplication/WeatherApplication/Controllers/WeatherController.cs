@@ -59,31 +59,5 @@ namespace WeatherApplication.Controllers
                 return BadRequest($"Error fetching weather data: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// This is method for UI
-        /// </summary>
-        /// <param name="city"></param>
-        /// <returns></returns>
-
-        //[HttpGet]
-        //public async Task<IActionResult> Index(string city)
-        //{
-        //    if (string.IsNullOrEmpty(city))
-        //    {
-        //        return View(new WeatherViewModel());
-        //    }
-
-        //    var weatherData = await _weatherService.GetWeatherForCityAsync(city);
-        //    var viewModel = new WeatherViewModel
-        //    {
-        //        City = city,
-        //        Description = weatherData.Description,
-        //        Temperature = weatherData.Temperature,
-        //        Date = DateTime.Now
-        //    };
-
-        //    return View(viewModel);
-        //}
     }
 }
