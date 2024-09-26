@@ -32,7 +32,7 @@ namespace WeatherApplication.Services.Implementation
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return new List<AbstractResponse> { new WeatherErrorResponse { ErrorMessage = $"{city} doesn't exists in our DB!", ErrorCode = (int)response.StatusCode} };
+                return [new WeatherErrorResponse { ErrorMessage = $"{city} doesn't exists in our DB!", ErrorCode = (int)response.StatusCode}];
             }
 
             else
