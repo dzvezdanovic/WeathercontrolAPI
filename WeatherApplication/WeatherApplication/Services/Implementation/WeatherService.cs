@@ -20,7 +20,7 @@ namespace WeatherApplication.Services.Implementation
             _apiKey = configuration["WeatherAPI:ApiKey"];
         }
 
-        public async Task<List<AbstractResponse>> GetWeatherForCityAndTimeAsync(string city, DateTime time)
+        public async Task<List<WeatherResponse>> GetWeatherForCityAndTimeAsync(string city, DateTime time)
         {
             var weatherResponses = new List<WeatherResponse>();
 
@@ -32,7 +32,7 @@ namespace WeatherApplication.Services.Implementation
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return [new WeatherErrorResponse { ErrorMessage = $"{city} doesn't exists in our DB!", ErrorCode = (int)response.StatusCode}];
+                return [new WeatherResponse() /*{ ErrorMessage = $"{city} doesn't exists in our DB!", ErrorCode = (int)response.StatusCode}]*/];
             }
 
             else
@@ -40,16 +40,16 @@ namespace WeatherApplication.Services.Implementation
                 string responseBody = await response.Content.ReadAsStringAsync();
 
                 var forecastData = JsonConvert.DeserializeObject<dynamic>(responseBody);
-                var cityFromApi = forecastData.city.name;
+                var cityFromApi = forecastData.City.Name;
 
-                foreach (var item in forecastData["list"])
+                foreach (var item in forecastData.List)
                 {
-                    DateTime dateTime = DateTimeOffset.FromUnixTimeSeconds((long)item["dt"]).DateTime;
+                    DateTime dateTime = DateTimeOffset.FromUnixTimeSeconds((long)item.Dt).DateTime;
 
                     if (dateTime.Date == time.Date)
                     {
-                        var temp = item["main"]["temp"];
-                        var weatherDescription = item["weather"][0]["description"];
+                        var temp = item.Main.Temp;
+                        var weatherDescription = item.Weather[0].Description;
 
                         weatherResponses.Add(new WeatherResponse { City = cityFromApi, Temperature = temp, Description = weatherDescription, Date = dateTime });
                     }
@@ -57,11 +57,11 @@ namespace WeatherApplication.Services.Implementation
 
                 _logger.LogInformation($"Successfully fetched weather data for {city} and {time}");
 
-                return weatherResponses.Cast<AbstractResponse>().ToList();
+                return weatherResponses;
             }
         }
 
-        public async Task<AbstractResponse> GetWeatherForCityAsync(string city)
+        public async Task<WeatherResponse> GetWeatherForCityAsync(string city)
         {
             _logger.LogInformation($"Fetching weather data for {city}");
 
@@ -72,10 +72,10 @@ namespace WeatherApplication.Services.Implementation
 
             if (response.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(data))
             {
-                return new WeatherErrorResponse() 
+                return new WeatherResponse() 
                 { 
-                    ErrorCode = (int)response.StatusCode,
-                    ErrorMessage = $"{city} doesn't exists in our DB!"
+                    //ErrorCode = (int)response.StatusCode,
+                    //ErrorMessage = $"{city} doesn't exists in our DB!"
                 };
             }
             else
@@ -86,9 +86,9 @@ namespace WeatherApplication.Services.Implementation
 
                 return new WeatherResponse
                 {
-                    City = weatherData.name,
-                    Description = weatherData.weather[0].description,
-                    Temperature = weatherData.main.temp,
+                    City = weatherData.City.Name,
+                    Description = weatherData.Weather.Description,
+                    Temperature = weatherData.Main.Temp,
                     Date = DateTime.UtcNow
                 };
 

@@ -1,6 +1,6 @@
 ﻿namespace WeatherApplication.Models
 {
-    public class WeatherErrorResponse : AbstractResponse 
+    public class WeatherErrorResponse 
     { 
         public string ErrorMessage { get; set; }
         public int ErrorCode { get; set; }
