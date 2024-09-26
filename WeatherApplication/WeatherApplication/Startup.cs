@@ -26,7 +26,7 @@ namespace WeatherApplication
                 {
                     Title = "Weather Forecasting API",
                     Version = "v1",
-                    Description = "An API to fetch weather data for specific cities.",
+                    Description = "An API to fetch weather data for specific cities and specific time in future in range of 5 days.",
                 });
             });
         }

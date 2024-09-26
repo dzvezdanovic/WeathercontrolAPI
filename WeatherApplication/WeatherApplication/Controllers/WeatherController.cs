@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WeatherApplication.Models;
 using WeatherApplication.Services.Interfaces;
 
 namespace WeatherApplication.Controllers
@@ -26,16 +27,31 @@ namespace WeatherApplication.Controllers
                 return BadRequest("City name cannot be empty.");
             }
 
+            List<Messages<SuccessModel>> successData = new();
+            List<Messages<ErrorModel>> errorData = new();
+
             if (date.HasValue)
             {
-                var weatherForSpecificDate = await _weatherService.GetWeatherForCityAndTimeAsync(city, date.Value);
-                return Ok(weatherForSpecificDate);
+                successData = await _weatherService.GetWeatherForCityAndTimeAsync<SuccessModel>(city, date.Value);
+                errorData = await _weatherService.GetWeatherForCityAndTimeAsync<ErrorModel>(city, date.Value);
             }
             else
             {
-                var currenetWeather = await _weatherService.GetWeatherForCityAsync(city);
-                return Ok(currenetWeather);
+                successData = await _weatherService.GetWeatherForCityAsync<SuccessModel>(city);
+                errorData = await _weatherService.GetWeatherForCityAsync<ErrorModel>(city);
             }
+
+            if (errorData.Count > 0)
+            {
+                var errorMessage = errorData.FirstOrDefault()?.SpecificMessage;
+                return BadRequest(errorMessage);
+            }
+            else if(successData.Count > 0)
+            {
+                var successMessage = successData.FirstOrDefault()?.SpecificMessage;
+                return Ok(successMessage);
+            }
+            return NoContent(); 
         }
     }
 }
