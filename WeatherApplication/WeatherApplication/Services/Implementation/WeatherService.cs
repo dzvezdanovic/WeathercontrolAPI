@@ -10,12 +10,13 @@ namespace WeatherApplication.Services.Implementation
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<WeatherService> _logger;
-        private readonly string _apiKey = "3e308bafc147f49c52b7bfee1c1c0e97";
+        private readonly string _apiKey;
 
-        public WeatherService(HttpClient httpClient, ILogger<WeatherService> logger)
+        public WeatherService(HttpClient httpClient, ILogger<WeatherService> logger, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _logger = logger;
+            _apiKey = configuration["WeatherAPI:ApiKey"];
         }
 
         public async Task<List<WeatherResponse>> GetWeatherForCityAndTimeAsync(string city, DateTime time)
@@ -24,31 +25,26 @@ namespace WeatherApplication.Services.Implementation
 
             _logger.LogInformation($"Fetching weather data for {city} and {time}");
 
-            // Construct the URL for the 5-day forecast API
             string url = $"https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={_apiKey}&units=metric&lang=en";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
-            //response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
+
             string responseBody = await response.Content.ReadAsStringAsync();
 
-            // Parse the JSON response
             var forecastData = JsonConvert.DeserializeObject<dynamic>(responseBody);
+            var cityFromApi = forecastData.city.name;
 
-            // Loop through the forecast list
             foreach (var item in forecastData["list"])
             {
                 DateTime dateTime = DateTimeOffset.FromUnixTimeSeconds((long)item["dt"]).DateTime;
 
-                // Check if the date matches the specific day
                 if (dateTime.Date == time.Date)
                 {
-                    // Extract weather details
                     var temp = item["main"]["temp"];
                     var weatherDescription = item["weather"][0]["description"];
 
-                    Console.WriteLine($"Date: {dateTime}, Temperature: {temp}°C, Description: {weatherDescription}");
-
-                    weatherResponses.Add(new WeatherResponse { City = city, Temperature = temp, Description = weatherDescription, Date = dateTime });
+                    weatherResponses.Add(new WeatherResponse { City = cityFromApi, Temperature = temp, Description = weatherDescription, Date = dateTime });
                 }
             }
 
@@ -61,16 +57,14 @@ namespace WeatherApplication.Services.Implementation
         {
             _logger.LogInformation($"Fetching weather data for {city}");
 
-            //URL with city and apikey
             string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric&lang=en";
 
-            //Get quest to OpenWeather Api
             HttpResponseMessage response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
 
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError($"Failed to fetch weather data for {city}, Status Code: {response.StatusCode}");
-                throw new Exception("Error fetching weather data");
             }
 
             var data = await response.Content.ReadAsStringAsync();
@@ -83,7 +77,7 @@ namespace WeatherApplication.Services.Implementation
 
                 return new WeatherResponse
                 {
-                    City = city,
+                    City = weatherData.name,
                     Description = weatherData.weather[0].description,
                     Temperature = weatherData.main.temp,
                     Date = DateTime.UtcNow

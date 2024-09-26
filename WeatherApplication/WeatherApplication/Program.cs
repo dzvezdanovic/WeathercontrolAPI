@@ -3,29 +3,25 @@ using WeatherApplication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Build configuration from appsettings.json and environment variables
 builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory()) // Set the base path to the current directory
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true) // Load appsettings.json
-    .AddEnvironmentVariables(); // Optionally add environment variables
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
-// Initialize Serilog from the configuration
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration) // Read Serilog configuration from appsettings.json
+    .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
-// Create a Startup instance
 var startup = new Startup(builder.Configuration);
-startup.ConfigureServices(builder.Services); // Call to configure services
+startup.ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline using Startup
-startup.Configure(app, app.Environment); // Call to configure the HTTP request pipeline
+startup.Configure(app, app.Environment);
 
 app.MapControllerRoute(
     name: "default",
