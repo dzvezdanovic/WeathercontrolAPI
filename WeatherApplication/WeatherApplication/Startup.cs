@@ -13,17 +13,13 @@ namespace WeatherApplication
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Register WeatherService for dependency injection
             services.AddHttpClient();
             services.AddScoped<IWeatherService, WeatherService>();
 
-            // Add controllers (for API)
             services.AddControllers();
 
-            // Add Swagger services
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
@@ -35,7 +31,6 @@ namespace WeatherApplication
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -50,14 +45,12 @@ namespace WeatherApplication
 
             app.UseSwagger();
 
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Weather Forecasting API V1");
-                c.RoutePrefix = string.Empty; // Set the Swagger UI at the app's root
+                c.RoutePrefix = string.Empty;
             });
 
-            // Use Serilog for request logging
             app.UseSerilogRequestLogging();
 
             app.UseHttpsRedirection();
