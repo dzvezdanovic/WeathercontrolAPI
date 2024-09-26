@@ -25,22 +25,20 @@ namespace WeatherApplication.Services.Implementation
 
             _logger.LogInformation($"Fetching weather data for {city} and {time}");
 
-            // Construct the URL for the 5-day forecast API
             string url = $"https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={_apiKey}&units=metric&lang=en";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
-            //response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
+
             string responseBody = await response.Content.ReadAsStringAsync();
 
-            // Parse the JSON response
             var forecastData = JsonConvert.DeserializeObject<dynamic>(responseBody);
+            var cityFromApi = forecastData.city.name;
 
-            // Loop through the forecast list
             foreach (var item in forecastData["list"])
             {
                 DateTime dateTime = DateTimeOffset.FromUnixTimeSeconds((long)item["dt"]).DateTime;
 
-                // Check if the date matches the specific day
                 if (dateTime.Date == time.Date)
                 {
                     // Extract weather details
@@ -49,7 +47,7 @@ namespace WeatherApplication.Services.Implementation
 
                     Console.WriteLine($"Date: {dateTime}, Temperature: {temp}°C, Description: {weatherDescription}");
 
-                    weatherResponses.Add(new WeatherResponse { City = city, Temperature = temp, Description = weatherDescription, Date = dateTime });
+                    weatherResponses.Add(new WeatherResponse { City = cityFromApi, Temperature = temp, Description = weatherDescription, Date = dateTime });
                 }
             }
 
@@ -60,38 +58,50 @@ namespace WeatherApplication.Services.Implementation
 
         public async Task<WeatherResponse> GetWeatherForCityAsync(string city)
         {
-            _logger.LogInformation($"Fetching weather data for {city}");
-
-            //URL with city and apikey
-            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric&lang=en";
-
-            //Get quest to OpenWeather Api
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                _logger.LogError($"Failed to fetch weather data for {city}, Status Code: {response.StatusCode}");
-                throw new Exception("Error fetching weather data");
-            }
+                _logger.LogInformation($"Fetching weather data for {city}");
 
-            var data = await response.Content.ReadAsStringAsync();
+                string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric&lang=en";
 
-            if (!string.IsNullOrWhiteSpace(data))
-            {
-                var weatherData = JsonConvert.DeserializeObject<dynamic>(data);
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
 
-                _logger.LogInformation($"Successfully fetched weather data for {city}");
-
-                return new WeatherResponse
+                if (!response.IsSuccessStatusCode)
                 {
-                    City = weatherData.Name,
-                    Description = weatherData.weather[0].description,
-                    Temperature = weatherData.main.temp,
-                    Date = DateTime.UtcNow
-                };
+                    _logger.LogError($"Failed to fetch weather data for {city}, Status Code: {response.StatusCode}");
+                    throw new Exception("Error fetching weather data");
+                }
+
+                var data = await response.Content.ReadAsStringAsync();
+
+                if (!string.IsNullOrWhiteSpace(data))
+                {
+                    var weatherData = JsonConvert.DeserializeObject<dynamic>(data);
+
+                    _logger.LogInformation($"Successfully fetched weather data for {city}");
+
+                    return new WeatherResponse
+                    {
+                        City = weatherData.name,
+                        Description = weatherData.weather[0].description,
+                        Temperature = weatherData.main.temp,
+                        Date = DateTime.UtcNow
+                    };
+                }
+                else
+                {
+                    return new WeatherResponse { City = "Unknown" };
+                }
             }
-            else
+            catch(TaskCanceledException ex)
             {
+                _logger.LogError(ex, "Request was canceled, possibly due to a timeout.");
+                throw;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogInformation($"{ex}");
                 return new WeatherResponse { City = "Unknown" };
             }
         }
