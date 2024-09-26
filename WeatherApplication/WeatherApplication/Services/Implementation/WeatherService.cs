@@ -83,7 +83,7 @@ namespace WeatherApplication.Services.Implementation
 
                 return new WeatherResponse
                 {
-                    City = city,
+                    City = weatherData.Name,
                     Description = weatherData.weather[0].description,
                     Temperature = weatherData.main.temp,
                     Date = DateTime.UtcNow
