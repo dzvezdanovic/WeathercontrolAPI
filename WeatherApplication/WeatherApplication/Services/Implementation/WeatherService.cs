@@ -57,7 +57,7 @@ namespace WeatherApplication.Services.Implementation
 
                 _logger.LogInformation($"Successfully fetched weather data for {city} and {time}");
 
-                return weatherResponses.Cast<AbstractResponse>().ToList(); ;
+                return weatherResponses.Cast<AbstractResponse>().ToList();
             }
         }
 
