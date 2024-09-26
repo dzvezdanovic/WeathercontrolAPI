@@ -41,11 +41,8 @@ namespace WeatherApplication.Services.Implementation
 
                 if (dateTime.Date == time.Date)
                 {
-                    // Extract weather details
                     var temp = item["main"]["temp"];
                     var weatherDescription = item["weather"][0]["description"];
-
-                    Console.WriteLine($"Date: {dateTime}, Temperature: {temp}°C, Description: {weatherDescription}");
 
                     weatherResponses.Add(new WeatherResponse { City = cityFromApi, Temperature = temp, Description = weatherDescription, Date = dateTime });
                 }
@@ -58,50 +55,36 @@ namespace WeatherApplication.Services.Implementation
 
         public async Task<WeatherResponse> GetWeatherForCityAsync(string city)
         {
-            try
+            _logger.LogInformation($"Fetching weather data for {city}");
+
+            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric&lang=en";
+
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            if (!response.IsSuccessStatusCode)
             {
-                _logger.LogInformation($"Fetching weather data for {city}");
-
-                string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric&lang=en";
-
-                HttpResponseMessage response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogError($"Failed to fetch weather data for {city}, Status Code: {response.StatusCode}");
-                    throw new Exception("Error fetching weather data");
-                }
-
-                var data = await response.Content.ReadAsStringAsync();
-
-                if (!string.IsNullOrWhiteSpace(data))
-                {
-                    var weatherData = JsonConvert.DeserializeObject<dynamic>(data);
-
-                    _logger.LogInformation($"Successfully fetched weather data for {city}");
-
-                    return new WeatherResponse
-                    {
-                        City = weatherData.name,
-                        Description = weatherData.weather[0].description,
-                        Temperature = weatherData.main.temp,
-                        Date = DateTime.UtcNow
-                    };
-                }
-                else
-                {
-                    return new WeatherResponse { City = "Unknown" };
-                }
+                _logger.LogError($"Failed to fetch weather data for {city}, Status Code: {response.StatusCode}");
             }
-            catch(TaskCanceledException ex)
+
+            var data = await response.Content.ReadAsStringAsync();
+
+            if (!string.IsNullOrWhiteSpace(data))
             {
-                _logger.LogError(ex, "Request was canceled, possibly due to a timeout.");
-                throw;
+                var weatherData = JsonConvert.DeserializeObject<dynamic>(data);
+
+                _logger.LogInformation($"Successfully fetched weather data for {city}");
+
+                return new WeatherResponse
+                {
+                    City = weatherData.name,
+                    Description = weatherData.weather[0].description,
+                    Temperature = weatherData.main.temp,
+                    Date = DateTime.UtcNow
+                };
             }
-            catch(Exception ex)
+            else
             {
-                _logger.LogInformation($"{ex}");
                 return new WeatherResponse { City = "Unknown" };
             }
         }
