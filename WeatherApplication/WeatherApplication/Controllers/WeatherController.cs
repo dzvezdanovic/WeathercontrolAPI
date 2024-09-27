@@ -33,25 +33,28 @@ namespace WeatherApplication.Controllers
             if (date.HasValue)
             {
                 successData = await _weatherService.GetWeatherForCityAndTimeAsync<SuccessModel>(city, date.Value);
-                errorData = await _weatherService.GetWeatherForCityAndTimeAsync<ErrorModel>(city, date.Value);
+
+                for(int i = 0; i < successData.Count; ++i)
+                {
+                    if (successData[i] == null) 
+                    {
+                        errorData = await _weatherService.GetWeatherForCityAndTimeAsync<ErrorModel>(city, date.Value);
+                        return BadRequest(errorData);
+                    }
+                    else return Ok(successData);
+                }
             }
             else
             {
                 successData = await _weatherService.GetWeatherForCityAsync<SuccessModel>(city);
-                errorData = await _weatherService.GetWeatherForCityAsync<ErrorModel>(city);
+                if (successData[0] != null) return Ok(successData);
+                else
+                {
+                    errorData = await _weatherService.GetWeatherForCityAsync<ErrorModel>(city);
+                    return BadRequest(errorData);
+                }
             }
-
-            if (errorData.Count > 0)
-            {
-                var errorMessage = errorData.FirstOrDefault()?.SpecificMessage;
-                return BadRequest(errorMessage);
-            }
-            else if(successData.Count > 0)
-            {
-                var successMessage = successData.FirstOrDefault()?.SpecificMessage;
-                return Ok(successMessage);
-            }
-            return NoContent(); 
+            return NoContent();
         }
     }
 }
