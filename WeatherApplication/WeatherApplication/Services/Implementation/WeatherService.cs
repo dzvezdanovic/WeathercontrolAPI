@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Net;
 using WeatherApplication.Models;
 using WeatherApplication.Services.Interfaces;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WeatherApplication.Services.Implementation
 {

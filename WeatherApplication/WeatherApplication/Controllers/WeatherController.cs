@@ -41,7 +41,6 @@ namespace WeatherApplication.Controllers
                 }
 
                 return Ok(successData);
-
             }
             else
             {
