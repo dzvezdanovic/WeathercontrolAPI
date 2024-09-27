@@ -14,14 +14,15 @@ namespace WeatherApplicationTests.Unit
         private readonly HttpClient _httpClient;
         private readonly Mock<IWeatherService> _weatherServiceMock;
         private readonly WeatherController _weatherController;
+        private readonly ILogger<WeatherController> _logger;
 
         public WeatherServiceTests()
         {
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
             _weatherServiceMock = new Mock<IWeatherService>();
-            ILogger<WeatherController> logger = Mock.Of<ILogger<WeatherController>>();
-            _weatherController = new WeatherController(_weatherServiceMock.Object, logger);
+            _logger = Mock.Of<ILogger<WeatherController>>();
+            _weatherController = new WeatherController(_weatherServiceMock.Object, _logger);
         }
     }
 }
