@@ -17,9 +17,9 @@ namespace WeatherApplication.Models
         }
     }
 
-    public class SuccessMessage : Messages<SuccessModel>
+    public class SuccessMessage : Messages<WeatherModel>
     {
-        public SuccessMessage(SuccessModel success)
+        public SuccessMessage(WeatherModel success)
         {
             SpecificMessage = success;
             isSuccess = true;
