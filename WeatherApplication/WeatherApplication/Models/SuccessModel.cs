@@ -1,6 +1,6 @@
 ﻿namespace WeatherApplication.Models
 {
-    public class SuccessModel
+    public class WeatherModel
     {
         public string City { get; set; }
         public string Description { get; set; }

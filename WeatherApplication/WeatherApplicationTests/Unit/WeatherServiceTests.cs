@@ -21,52 +21,49 @@ namespace WeatherApplicationTests.Unit
         public async Task SuccessFirstMethod()
         {
             var city = "Belgrade";
-            var expectedResponse = new List<Messages<SuccessModel>>
+            var expectedResponse = new ResultMessage<WeatherModel>
             {
-                new SuccessMessage(new SuccessModel
+                IsSuccess = true,
+                Result = new WeatherModel
                 {
                     City = "Belgrade",
                     Description = "clear sky",
                     Temperature = 25.5
-                })
+                }
             };
 
             _weatherServiceMock
-                .Setup(s => s.GetWeatherForCityAsync<SuccessModel>(city))
+                .Setup(s => s.GetWeatherForCityAsync(city))
                 .ReturnsAsync(expectedResponse);
 
-            var result = await _weatherServiceMock.Object.GetWeatherForCityAsync<SuccessModel>(city);
+            var response = await _weatherServiceMock.Object.GetWeatherForCityAsync(city);
 
-            Assert.Single(result);
-            var successMessage = Assert.IsType<SuccessMessage>(result.First());
-            Assert.Equal("Belgrade", successMessage.SpecificMessage.City);
-            Assert.Equal("clear sky", successMessage.SpecificMessage.Description);
-            Assert.Equal(25.5, successMessage.SpecificMessage.Temperature);
+            Assert.True(response.IsSuccess);
+            Assert.Equal("Belgrade", response.Result?.City);
+            Assert.Equal("clear sky", response.Result?.Description);
+            Assert.Equal(25.5, response.Result?.Temperature);
         }
 
         [Fact]
         public async Task BadRequestStatusCode()
         {
             var city = "NonExistentCity";
-            var expectedErrorResponse = new List<Messages<ErrorModel>>
+            var expectedErrorResponse = new ResultMessage<WeatherModel>
             {
-                new ErrorMessage(new ErrorModel
-                {
-                    ErrorCode = 404,
-                    ErrorMessage = $"Could not found information for {city}!"
-                })
+                IsSuccess = false,
+                ErrorCode = "NotFound",
+                ErrorMessage = $"Could not found information for {city}!"
             };
 
             _weatherServiceMock
-                .Setup(s => s.GetWeatherForCityAsync<ErrorModel>(city))
+                .Setup(s => s.GetWeatherForCityAsync(city))
                 .ReturnsAsync(expectedErrorResponse);
 
-            var result = await _weatherServiceMock.Object.GetWeatherForCityAsync<ErrorModel>(city);
+            var response = await _weatherServiceMock.Object.GetWeatherForCityAsync(city);
 
-            Assert.Single(result);
-            var errorMessage = Assert.IsType<ErrorMessage>(result.First());
-            Assert.Equal(404, errorMessage.SpecificMessage.ErrorCode);
-            Assert.Equal($"Could not found information for {city}!", errorMessage.SpecificMessage.ErrorMessage);
+            Assert.False(response.IsSuccess);
+            Assert.Equal("NotFound", response.ErrorCode);
+            Assert.Equal($"Could not found information for {city}!", response.ErrorMessage);
         }
     }
 }

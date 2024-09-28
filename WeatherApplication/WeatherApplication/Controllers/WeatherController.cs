@@ -11,9 +11,6 @@ namespace WeatherApplication.Controllers
         private readonly IWeatherService _weatherService;
         private readonly ILogger<WeatherController> _logger;
 
-        public List<Messages<SuccessModel>> successData = new();
-        public List<Messages<ErrorModel>> errorData = new();
-
         public WeatherController(IWeatherService weatherService, ILogger<WeatherController> logger)
         {
             _weatherService = weatherService;
@@ -32,27 +29,33 @@ namespace WeatherApplication.Controllers
 
             if (date.HasValue)
             {
-                successData = await _weatherService.GetWeatherForCityAndTimeAsync<SuccessModel>(city, date.Value);
+                var response = await _weatherService.GetWeatherForCityAndTimeAsync(city, date.Value);
 
-                if (successData.FirstOrDefault() == null)
+                if (!response.IsSuccess)
                 {
-                    errorData = await _weatherService.GetWeatherForCityAndTimeAsync<ErrorModel>(city, date.Value);
-                    return BadRequest(errorData);
+                    return BadRequest(new ErrorModel
+                    {
+                        ErrorCode = response.ErrorCode,
+                        ErrorMessage = response.ErrorMessage
+                    });
                 }
 
-                return Ok(successData);
+                return Ok(response.Result);
             }
             else
             {
-                successData = await _weatherService.GetWeatherForCityAsync<SuccessModel>(city);
+                var response = await _weatherService.GetWeatherForCityAsync(city);
 
-                if (successData.FirstOrDefault() == null)
+                if (!response.IsSuccess)
                 {
-                    errorData = await _weatherService.GetWeatherForCityAsync<ErrorModel>(city);
-                    return BadRequest(errorData);
+                    return BadRequest(new ErrorModel
+                    {
+                        ErrorCode = response.ErrorCode,
+                        ErrorMessage = response.ErrorMessage
+                    });
                 }
 
-                return Ok(successData);
+                return Ok(response.Result);
             }
         }
     }

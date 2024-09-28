@@ -18,10 +18,8 @@ namespace WeatherApplication.Services.Implementation
             _apiKey = configuration["WeatherAPI:ApiKey"];
         }
 
-        public async Task<List<Messages<T>>> GetWeatherForCityAndTimeAsync<T>(string city, DateTime time)
+        public async Task<ResultMessage<List<WeatherModel>>> GetWeatherForCityAndTimeAsync(string city, DateTime time)
         {
-            var weatherResponses = new List<Messages<T>>();
-
             _logger.LogInformation($"Fetching weather data for {city} and {time}");
 
             string url = $"https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={_apiKey}&units=metric&lang=en";
@@ -30,10 +28,12 @@ namespace WeatherApplication.Services.Implementation
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                var error = new ErrorModel { ErrorCode = (int)response.StatusCode, ErrorMessage = $"Could not found information for {city}!" };
-                weatherResponses.Add(new ErrorMessage(error) as Messages<T>);
-
-                return weatherResponses;
+                return new ResultMessage<List<WeatherModel>>
+                {
+                    IsSuccess = false,
+                    ErrorCode = response.StatusCode.ToString(),
+                    ErrorMessage = $"Could not found information for {city}!"
+                };
             }
 
             else
@@ -42,6 +42,8 @@ namespace WeatherApplication.Services.Implementation
 
                 var forecastData = JsonConvert.DeserializeObject<dynamic>(responseBody);
                 var cityFromApi = forecastData.city.name;
+
+                var weatherList = new List<WeatherModel>();
 
                 foreach (var item in forecastData["list"])
                 {
@@ -52,21 +54,24 @@ namespace WeatherApplication.Services.Implementation
                         var temp = item["main"]["temp"];
                         var weatherDescription = item["weather"][0]["description"];
 
-                        var success = new SuccessModel { City = cityFromApi, Date = dateTime, Temperature = temp, Description = weatherDescription };
-                        weatherResponses.Add(new SuccessMessage(success) as Messages<T>);
+                        var weather = new WeatherModel { City = cityFromApi, Date = dateTime, Temperature = temp, Description = weatherDescription };
+                        weatherList.Add(weather);
                     }
                 }
 
                 _logger.LogInformation($"Successfully fetched weather data for {city} and {time}");
 
-                return weatherResponses;
+                return new ResultMessage<List<WeatherModel>>
+                {
+                    IsSuccess = true,
+                    Result = weatherList
+                };
             }
         }
 
-        public async Task<List<Messages<T>>> GetWeatherForCityAsync<T>(string city)
+        public async Task<ResultMessage<WeatherModel>> GetWeatherForCityAsync(string city)
         {
             _logger.LogInformation($"Fetching weather data for {city}");
-            var weatherResponses = new List<Messages<T>>();
             string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric&lang=en";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
@@ -74,9 +79,12 @@ namespace WeatherApplication.Services.Implementation
 
             if (response.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(data))
             {
-                var error = new ErrorModel { ErrorCode = (int)response.StatusCode, ErrorMessage = $"Could not found information for {city}!" };
-                weatherResponses.Add(new ErrorMessage(error) as Messages<T>);
-                return weatherResponses;
+                return new ResultMessage<WeatherModel>
+                {
+                    IsSuccess = false,
+                    ErrorCode = response.StatusCode.ToString(),
+                    ErrorMessage = $"Could not found information for {city}!"
+                };
             }
             else
             {
@@ -84,16 +92,19 @@ namespace WeatherApplication.Services.Implementation
 
                 _logger.LogInformation($"Successfully fetched weather data for {city}");
 
-                var success = new SuccessModel
+                var weather = new WeatherModel
                 {
                     City = weatherData.name,
                     Description = weatherData.weather[0].description,
                     Temperature = weatherData.main.temp,
                     Date = DateTime.UtcNow
                 };
-                weatherResponses.Add(new SuccessMessage(success) as Messages<T>);
 
-                return weatherResponses;
+                return new ResultMessage<WeatherModel>
+                {
+                    IsSuccess = true,
+                    Result = weather
+                };
             }
         }
     }
