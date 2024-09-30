@@ -21,10 +21,10 @@ namespace WeatherApplicationTests.Unit
         public async Task SuccessFirstMethod()
         {
             var city = "Belgrade";
-            var expectedResponse = new ResultMessage<WeatherModel>
+            var expectedResponse = new ResultMessage<SuccessModel>
             {
                 IsSuccess = true,
-                Result = new WeatherModel
+                Result = new SuccessModel
                 {
                     City = "Belgrade",
                     Description = "clear sky",
@@ -48,7 +48,7 @@ namespace WeatherApplicationTests.Unit
         public async Task BadRequestStatusCode()
         {
             var city = "NonExistentCity";
-            var expectedErrorResponse = new ResultMessage<WeatherModel>
+            var expectedErrorResponse = new ResultMessage<SuccessModel>
             {
                 IsSuccess = false,
                 ErrorCode = "NotFound",
