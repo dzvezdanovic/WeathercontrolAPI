@@ -18,7 +18,7 @@ namespace WeatherApplication.Services.Implementation
             _apiKey = configuration["WeatherAPI:ApiKey"];
         }
 
-        public async Task<ResultMessage<List<WeatherModel>>> GetWeatherForCityAndTimeAsync(string city, DateTime time)
+        public async Task<ResultMessage<List<SuccessModel>>> GetWeatherForCityAndTimeAsync(string city, DateTime time)
         {
             _logger.LogInformation($"Fetching weather data for {city} and {time}");
 
@@ -28,7 +28,7 @@ namespace WeatherApplication.Services.Implementation
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return new ResultMessage<List<WeatherModel>>
+                return new ResultMessage<List<SuccessModel>>
                 {
                     IsSuccess = false,
                     ErrorCode = response.StatusCode.ToString(),
@@ -43,7 +43,7 @@ namespace WeatherApplication.Services.Implementation
                 var forecastData = JsonConvert.DeserializeObject<dynamic>(responseBody);
                 var cityFromApi = forecastData.city.name;
 
-                var weatherList = new List<WeatherModel>();
+                var weatherList = new List<SuccessModel>();
 
                 foreach (var item in forecastData["list"])
                 {
@@ -54,14 +54,14 @@ namespace WeatherApplication.Services.Implementation
                         var temp = item["main"]["temp"];
                         var weatherDescription = item["weather"][0]["description"];
 
-                        var weather = new WeatherModel { City = cityFromApi, Date = dateTime, Temperature = temp, Description = weatherDescription };
+                        var weather = new SuccessModel { City = cityFromApi, Date = dateTime, Temperature = temp, Description = weatherDescription };
                         weatherList.Add(weather);
                     }
                 }
 
                 _logger.LogInformation($"Successfully fetched weather data for {city} and {time}");
 
-                return new ResultMessage<List<WeatherModel>>
+                return new ResultMessage<List<SuccessModel>>
                 {
                     IsSuccess = true,
                     Result = weatherList
@@ -69,7 +69,7 @@ namespace WeatherApplication.Services.Implementation
             }
         }
 
-        public async Task<ResultMessage<WeatherModel>> GetWeatherForCityAsync(string city)
+        public async Task<ResultMessage<SuccessModel>> GetWeatherForCityAsync(string city)
         {
             _logger.LogInformation($"Fetching weather data for {city}");
             string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric&lang=en";
@@ -79,7 +79,7 @@ namespace WeatherApplication.Services.Implementation
 
             if (response.StatusCode != HttpStatusCode.OK || string.IsNullOrWhiteSpace(data))
             {
-                return new ResultMessage<WeatherModel>
+                return new ResultMessage<SuccessModel>
                 {
                     IsSuccess = false,
                     ErrorCode = response.StatusCode.ToString(),
@@ -92,7 +92,7 @@ namespace WeatherApplication.Services.Implementation
 
                 _logger.LogInformation($"Successfully fetched weather data for {city}");
 
-                var weather = new WeatherModel
+                var weather = new SuccessModel
                 {
                     City = weatherData.name,
                     Description = weatherData.weather[0].description,
@@ -100,7 +100,7 @@ namespace WeatherApplication.Services.Implementation
                     Date = DateTime.UtcNow
                 };
 
-                return new ResultMessage<WeatherModel>
+                return new ResultMessage<SuccessModel>
                 {
                     IsSuccess = true,
                     Result = weather

@@ -4,7 +4,7 @@ namespace WeatherApplication.Services.Interfaces
 {
     public interface IWeatherService
     {
-        Task<ResultMessage<List<WeatherModel>>> GetWeatherForCityAndTimeAsync(string city, DateTime time);
-        Task<ResultMessage<WeatherModel>> GetWeatherForCityAsync(string city);
+        Task<ResultMessage<List<SuccessModel>>> GetWeatherForCityAndTimeAsync(string city, DateTime time);
+        Task<ResultMessage<SuccessModel>> GetWeatherForCityAsync(string city);
     }
 }
